@@ -38,13 +38,13 @@
     gosub 5
     gosub 6
 
-0   dd = ( year_code + month_code + century_code + int( day$ ) ) mod 7
+0   dd = ( year_code + month_code + century_code + int( day$ ) + leap_code ) mod 7
 
     if dd < 0 then : dd = 0
 
     if v then : ? "( " str$( year_code ) " + " str$( month_code ) " + " str$( century_code ) + " + ( " + day$ " mod 7 ) + " str$( leap_code ) " ) mod 7 = " + str$( ( year_code + month_code + century_code + ( int( day$ ) mod 7 ) + leap_code ) mod 7 ) : ?
 
-    if ( t = 1 or v = 1 and not from_arg and not overachiever ) then : ?
+    if ( t = 1 or v = 1 and not from_arg and not just_doomsday and not overachiever ) then : ?
 
     th_exec "\when " + day$ + " " + month$ + " " + year$ ; when$ : w = val( when$ )
     th_exec "\when" ; now$ : n = val( now$ )
@@ -115,7 +115,7 @@
 
     century_code = centuries( int( th_re$( year$ , "^.{2}" ) ) mod 4 )
 
-    if v then : ? str$( int( th_re$( year$ , "^.{2}" ) ) ) " mod 4 = " str$( century_code )
+    if v then : ? str$( int( th_re$( year$ , "^.{2}" ) ) ) " mod 4 = " str$( int( th_re$( year$ , "^.{2}" ) ) mod 4 ) " --> " str$( century_code )
 
     return
 
@@ -124,6 +124,8 @@
 
     if ups$( month$ ) = "JANUARY" or ups$( month$ ) = "FEBRUARY" or th_re( month$ , "^(0+)?(1|2)$" ) then : jf = 1
     if ( val( year$ ) mod 400 ) then : leap = 1
+
+    leap_code = 0 - ( leap * jf )
 
     if v then : if leap_code = -1 then : ? "month is jan or feb and " year$ " is a leap year, -1 from final"
 
@@ -195,14 +197,16 @@
 9 ' Help me, you're my...
 
     only_hope$ = only_hope$ + "CLI Doomsday Calculator" + crlf$
-    only_hope$ = only_hope$                             + crlf$
+    only_hope$ = only_hope$ +                             crlf$
     only_hope$ = only_hope$ + "Usage:"                  + crlf$
     only_hope$ = only_hope$ + "doomsday [ISO date]"     + crlf$
     only_hope$ = only_hope$ + "doomsday -t <timestamp>" + crlf$
     only_hope$ = only_hope$ + "doomsday for <year>"     + crlf$
-    only_hope$ = only_hope$                             + crlf$
+    only_hope$ = only_hope$ +                             crlf$
     only_hope$ = only_hope$ + "Options:"                + crlf$
     only_hope$ = only_hope$ + "doomsday --verbose"      + crlf$
+    only_hope$ = only_hope$ +                             crlf$
+    only_hope$ = only_hope$ + "order of args is strict" + crlf$
 
     ? only_hope$
 

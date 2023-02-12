@@ -18,32 +18,32 @@ subtract to get to the wanted date.  Neat shit.
 
 ### Usage:
 ```
-    $ doomsday --help
+$ doomsday --help
 
-    CLI Doomsday Calculator
+CLI Doomsday Calculator
 
-    Usage:
-    doomsday [ISO date]
-    doomsday -t <timestamp>
-    doomsday for <year>
+Usage:
+doomsday [ISO date]
+doomsday -t <timestamp>
+doomsday for <year>
 
-    Options:
-    doomsday --verbose
+Options:
+doomsday --verbose
 ```
 
 ### Examples:
 ```
-    $ doomsday 2018-08-15
+$ doomsday 2018-08-15
 
-    15 August 2018 was on a Wednesday
-
-
-    $ doomsday for 1919
-
-    1919's doomsday was on a Friday
+15 August 2018 was on a Wednesday
 
 
-    $ doomsday --timestamp 1676170892.09022
+$ doomsday for 1919
 
-    12 February 2023 is on a Sunday
+1919's doomsday was on a Friday
+
+
+$ doomsday --timestamp 1676170892.09022
+
+12 February 2023 is on a Sunday
 ```
