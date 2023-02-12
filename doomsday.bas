@@ -7,6 +7,7 @@
 
 
     def fnChomp$( s$ ) = th_sed$( s$ , "^\s+|\s+$" )
+    crlf$ = chr$( 13 ) + chr$( 10 )
 
     ? ups$( argv$( 0 ) ) " - by ZCJ"
     ?
@@ -191,16 +192,19 @@
                                                      goto  0
 
 
-9 ' Help / %usage
+9 ' Help me, you're my...
 
-    ? "%usage: " th_sed$( argv$(0) , "\..*$" ) " [v] [<date>|t <timestamp>|for <year>]"
-    ? "timestamp / date must be last arg"
-    ?
-    ? "dates should be in YYYYMMDD format, separated by either a"
-    ? "-, /, or ."
-    ?
-    ? "arguments can be prefixed with -, --, /, or nothing at all."
-    ?
+    only_hope$ = only_hope$ + "CLI Doomsday Calculator" + crlf$
+    only_hope$ = only_hope$                             + crlf$
+    only_hope$ = only_hope$ + "Usage:"                  + crlf$
+    only_hope$ = only_hope$ + "doomsday [ISO date]"     + crlf$
+    only_hope$ = only_hope$ + "doomsday -t <timestamp>" + crlf$
+    only_hope$ = only_hope$ + "doomsday for <year>"     + crlf$
+    only_hope$ = only_hope$                             + crlf$
+    only_hope$ = only_hope$ + "Options:"                + crlf$
+    only_hope$ = only_hope$ + "doomsday --verbose"      + crlf$
+
+    ? only_hope$
 
     end
 
