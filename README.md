@@ -1,7 +1,7 @@
 # Doomsday
 Command-line doomsday calculator.  
 
-## Written for Telehack
+## Written for [Telehack](https://telehack.com)
 
 ### Wuzzat? 
 
