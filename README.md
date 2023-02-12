@@ -1,6 +1,8 @@
 # Doomsday
 Command-line doomsday calculator.  
 
+## Written for Telehack
+
 ### Wuzzat? 
 
 The doomsday algorithm was worked out by John Conway.  It makes use of the fact
