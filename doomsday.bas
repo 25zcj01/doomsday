@@ -15,7 +15,7 @@
     for i = 1 to argc%
         argv$( i ) = th_sed$( argv$( i ) , "^(-?-|\/)" )
         if th_re( ups$( argv$( i ) ) , "^V(ERBOSE)?$" ) then : v = 1 : ' this should probably always be first
-        if th_re( ups$( argv$( i ) ) , "^T(IMESTAMP)?$" ) then : timestamp$ = th_localtime$( str$( argv$( argc% - 1 ) ) ) : t = 1 : goto 8
+        if th_re( ups$( argv$( i ) ) , "^T(IMESTAMP)?$" ) then : timestamp$ = th_localtime$( str$( argv$( i + 1 ) ) ) : t = 1 : goto 8
         if th_re( ups$( argv$( i ) ) , "^((H(ELP)?)|\?)$" ) then : goto 9
         if th_re( ups$( argv$( i ) ) , "^F(OR)?$" ) then : just_doomsday = 1 : year$ = argv$( i + 1 )
         if th_re( ups$( argv$( i ) ) , "^(\d+[/\-\.]){2}\d+$" ) then : from_arg = 1 : parse_me$ = argv$( i ) : goto 10
