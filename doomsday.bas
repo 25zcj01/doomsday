@@ -47,7 +47,7 @@
   ' the whole shebang
   ' the IF statement shouldn't do anything _I think_ but it's a failsafe and those are always good
 
-    if ( ( date_from_timestamp = 1 ) and not ( date_from_arg ) and not ( just_get_doomsday ) and not ( boring_old_regular_input ) ) then : ?
+    if ( not ( date_from_timestamp = 1 ) and not ( date_from_arg ) and not ( just_get_doomsday ) and not ( boring_old_regular_input ) ) then : ?
   ' this is because I can't seem to write anything that has a consistent amount of vertical whitespace, so I just throw shit like this in to make it even
   ' basically if any arg things are in use there's an extra line of whitespace, which is ugly, so I add an equally ugly line of code to make sure that it's not printed
   ' of course, this would likely break if any new arg stuff is added, but not necessarily -- this is just a massive clusterfuck really
