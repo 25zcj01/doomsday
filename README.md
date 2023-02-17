@@ -33,11 +33,9 @@ CLI Doomsday Calculator
 
 Usage:
 doomsday [ISO date]
-doomsday -t <timestamp>
+doomsday t <timestamp>
 doomsday for <year>
-
-Options:
-doomsday --verbose
+doomsday anchor <year>
 ```
 
 ### Examples:
