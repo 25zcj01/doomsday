@@ -8,11 +8,11 @@
 ' Copyright 2022, 2023 ZCJ
 
 
-'    This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+'   This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 '   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-'    You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
+'   You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
 
 
     def fnChomp$( s$ ) = th_sed$( s$ , "^\s+|\s+$" )
@@ -26,6 +26,7 @@
         if th_re( ups$( argv$( i ) ) , "^T(IMESTAMP)?$" ) then : timestamp$ = th_localtime$( str$( argv$( i + 1 ) ) ) : date_from_timestamp = 1
         if th_re( ups$( argv$( i ) ) , "^((H(ELP)?)|\?)$" ) then : help_me = 1
         if th_re( ups$( argv$( i ) ) , "^F(OR)?$" ) then : just_get_doomsday = 1 : year$ = argv$( i + 1 )
+        if th_re( ups$( argv$( i ) ) , "^A(NCHOR)?$" ) then : just_get_anchor = 1 : year$ = argv$( i + 1 )
         if th_re( ups$( argv$( i ) ) , "^(\d+[/\-\.]){2}\d+$" ) then : date_from_arg = 1 : parse_me$ = argv$( i )
     next
 
@@ -33,6 +34,7 @@
     if ( just_get_doomsday )   then : goto 11
     if ( date_from_arg )       then : goto 10
     if ( help_me )             then : goto 9
+    if ( just_get_anchor )     then : goto 3
 
   ' Manual input
 
@@ -148,8 +150,15 @@
 
     century_code = centuries( int( th_re$( year$ , "^.{2}" ) ) mod 4 )
 
+    if ( just_get_anchor ) then : gosub 5
+    if ( just_get_anchor ) then : ? year$ "'s anchor date is " ;
+    if ( just_get_anchor ) then : ? days$( century_code )
+    if ( just_get_anchor ) then : end
+
   ' these are the 'anchor days', or the doomsdays of each century
   ' it cycles around like this every four years, so `year mod 4` finds it quick 'n' easy
+
+  ' the bottom bit just sets up the days table, prints anchor, and ends
 
     return
 
@@ -246,7 +255,7 @@
   ' if I was a competent programmer I wouldn't need that in here, but I am not, so no such luck
 
 
-9 ' Help me, you're my...
+9 ' Help me Obi-wan Kenobi, you're my...
 
     only_hope$ = only_hope$ + "CLI Doomsday Calculator" + crlf$
     only_hope$ = only_hope$ +                             crlf$
@@ -254,6 +263,7 @@
     only_hope$ = only_hope$ + "doomsday [ISO date]"     + crlf$
     only_hope$ = only_hope$ + "doomsday -t <timestamp>" + crlf$
     only_hope$ = only_hope$ + "doomsday for <year>"     + crlf$
+    only_hope$ = only_hope$ + "doomsday anchor <year>"  + crlf$
 
     ? only_hope$
 
