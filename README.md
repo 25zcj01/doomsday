@@ -54,3 +54,7 @@ $ doomsday --timestamp 1676170892.09022
 
 12 February 2023 is on a Sunday
 ```
+
+### Known bugs:
+
+    Breaks if year length != 4
