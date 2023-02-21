@@ -15,6 +15,7 @@
 '   You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
 
 
+    def fnLeap( n ) = ( ( not ( n mod 4 ) ) and ( not ( n mod 100 = 0 ) ) ) or ( not ( n mod 400 ) )
     def fnChomp$( s$ ) = th_sed$( s$ , "^\s+|\s+$" )
     crlf$ = chr$( 13 ) + chr$( 10 )
 
@@ -166,14 +167,13 @@
 4 ' Leap years (argh)
 
     if ( ups$( month$ ) = "JANUARY" ) or ( ups$( month$ ) = "FEBRUARY" ) or ( th_re( month$ , "^(0+)?(1|2)$" ) ) then : jan_or_feb = 1
-    if not ( val( year$ ) mod 400 ) then : is_leap = 1
 
-    leap_code = 0 - ( is_leap * jan_or_feb )
+    leap_code = 0 - ( fnLeap( val( year$ ) ) * jan_or_feb )
 
   ' if the year in question is a leap year, then the doomsdays in january and february are pushed forwards one day
   ' this means that you need to subtract one from the final product if it's january or february in a leap year
 
-  ' is_leap and jan_or_feb multiply to zero if either is zero (duh)
+  ' fnLeap( year ) and jan_or_feb multiply to zero if either is zero (duh)
   ' so zero minus their value will be either 0 or -1
 
   ' took me too long to think up a good way to do this heh
@@ -261,7 +261,7 @@
     only_hope$ = only_hope$ +                             crlf$
     only_hope$ = only_hope$ + "Usage:"                  + crlf$
     only_hope$ = only_hope$ + "doomsday [ISO date]"     + crlf$
-    only_hope$ = only_hope$ + "doomsday -t <timestamp>" + crlf$
+    only_hope$ = only_hope$ + "doomsday t <timestamp>"  + crlf$
     only_hope$ = only_hope$ + "doomsday for <year>"     + crlf$
     only_hope$ = only_hope$ + "doomsday anchor <year>"  + crlf$
 
