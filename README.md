@@ -58,5 +58,5 @@ $ doomsday --timestamp 1676170892.09022
 ### Known bugs:
 
     Breaks if year length != 4
-    Proleptic Gregorian dates don't work
+    Proleptic Gregorian dates sometimes don't work
     Sometimes randomly gives the wrong day for some reason
