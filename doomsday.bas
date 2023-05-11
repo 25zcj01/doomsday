@@ -15,11 +15,11 @@
 '   You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
 
 
-    def fnLeap( n ) = ( ( not ( n mod 4 ) ) and ( not ( n mod 100 = 0 ) ) ) or ( not ( n mod 400 ) )
-    def fnChomp$( s$ ) = th_sed$( s$ , "^\s+|\s+$" )
-    crlf$ = chr$( 13 ) + chr$( 10 )
+    def fnLeap( n ) = ( ( not ( n mod 4 ) ) and ( not ( n mod 100 = 0 ) ) ) or ( not ( n mod 400 ) ) : ' if n is a leap year then return 1, else 0
+    def fnChomp$( s$ ) = th_sed$( s$ , "^\s+|\s+$" ) : ' trim leading and trailing spaces
+    crlf$ = chr$( 13 ) + chr$( 10 ) : ' guh
 
-    ? ups$( argv$( 0 ) ) " - by ZCJ"
+    ? ups$( argv$( 0 ) ) + " - by ZCJ"
     ?
 
     for i = 1 to argc%
@@ -52,32 +52,31 @@
     gosub 5
     gosub 6
 
-0   dd = ( year_code + month_code + century_code + int( day$ ) + leap_code ) mod 7
+0   dd = ( year_code + month_code + century_code + int( day$ ) - leap_code ) mod 7
 
-    if ( dd < 0 ) then : dd = 0
+    if ( dd < 0 ) then : dd = 0 : ' if I wrote this correctly then this should never be necessary, but it can't hurt
 
   ' the whole shebang
-  ' the IF statement shouldn't do anything _I think_ but it's a failsafe and those are always good
 
     if ( not ( date_from_timestamp = 1 ) and not ( date_from_arg ) and not ( just_get_doomsday ) and not ( boring_old_regular_input ) ) then : ?
-  ' this is because I can't seem to write anything that has a consistent amount of vertical whitespace, so I just throw shit like this in to make it even
+  ' this is in here because I can't seem to write anything that has a consistent amount of vertical whitespace, so I just throw shit like this in to make it even
   ' basically if any arg things are in use there's an extra line of whitespace, which is ugly, so I add an equally ugly line of code to make sure that it's not printed
   ' of course, this would likely break if any new arg stuff is added, but not necessarily -- this is just a massive clusterfuck really
 
-    th_exec "\when " + day$ + " " + month$ + " " + year$ ; when$ : when = val( when$ )
-    th_exec "\when" ; now$ : now = val( now$ )
+  ' the following figures out whether the date you're looking at is before, during, or after the current th_localtime$
+  ' there's certainly a less convoluted way to do this, but this _should_ work
+  ' I haven't tested it, but I'm 99% sure that a non-four digit date will break this part, because I can't write code that works universally
 
-  ' the first WHEN gets the timestamp for whatever date we're looking at
-  ' breaks with massive numbers, but then again most things do
-  ' the second WHEN gets the current timestamp
+    gosub 12 : ' gen array for reverse month lookup
 
-  ' those are done for the below bit, which just finds which one came first
+    timeframe_t = val( year$ + monthsn$( ups$( month$ ) ) + right$( "0" + day$ , 2 ) ) : ' iso date of whenever input is, 'then'
+    timeframe_n = val( th_re$( th_localtime$ , "\d+" , 2 ) + right$( "0" + str$( th_localtime( 4 ) + 1 ) , 2 ) + th_re$( th_localtime$ , "\d+" ) ) : ' ditto but for today, whenever that is, 'now'
 
-    if ( now > when ) then : timeframe$ = " was " : ' now is later than then
-    if ( now < when ) then : timeframe$ = " will be " : ' then is later than now
-    if ( th_re$( th_localtime$( when ) , "^.+\d{4}" ) = th_re$( th_localtime$( now ) , "^.+\d{4}" ) ) then : timeframe$ = " is " : ' then is now but with shenanigans because timestamps are annoying with stuff like this sometimes, and a plain = won't be right because they're too darn precise
+    if ( timeframe_t < timeframe_n ) then : timeframe$ = "was" : ' then is before now
+    if ( timeframe_t = timeframe_n ) then : timeframe$ = "is" : ' then is during now
+    if ( timeframe_t > timeframe_n ) then : timeframe$ = "will be" : ' then is after now
 
-    ? day$ " " revmonth$( th_sed$( month$ , "^0+" ) ) " " year$ timeframe$ "on a " ; 
+    ? day$ + " " + revmonth$( th_sed$( month$ , "^0+" ) ) + " " + year$ + " " + timeframe$ + " on a " ; 
 
   ' above just prints out date in a pretty format
   ' it's not iso, really should be
@@ -92,6 +91,10 @@
 
 
 1 ' Get last two digits of year and get year code
+
+    if ( len( year$ ) < 4 ) then : year$ = "0" + year$
+
+    if ( len( year$ ) > 4 ) then : ? "%years over four digits aren't supported (yet)" : end 
 
     yy = int( th_re$( year$ , ".{2}$" ) )
 
@@ -152,7 +155,7 @@
     century_code = centuries( int( th_re$( year$ , "^.{2}" ) ) mod 4 )
 
     if ( just_get_anchor ) then : gosub 5
-    if ( just_get_anchor ) then : ? year$ "'s anchor date is " ;
+    if ( just_get_anchor ) then : ? year$ + "'s anchor date is " ;
     if ( just_get_anchor ) then : ? days$( century_code )
     if ( just_get_anchor ) then : end
 
@@ -168,13 +171,13 @@
 
     if ( ups$( month$ ) = "JANUARY" ) or ( ups$( month$ ) = "FEBRUARY" ) or ( th_re( month$ , "^(0+)?(1|2)$" ) ) then : jan_or_feb = 1
 
-    leap_code = 0 - ( fnLeap( val( year$ ) ) * jan_or_feb )
+    leap_code = ( fnLeap( val( year$ ) ) * jan_or_feb )
 
   ' if the year in question is a leap year, then the doomsdays in january and february are pushed forwards one day
   ' this means that you need to subtract one from the final product if it's january or february in a leap year
 
   ' fnLeap( year ) and jan_or_feb multiply to zero if either is zero (duh)
-  ' so zero minus their value will be either 0 or -1
+  ' so zero plus their value will be either 0 or 1
 
   ' took me too long to think up a good way to do this heh
 
@@ -286,11 +289,13 @@
 
 11 ' Just doomsday
 
+'   this is a lotta vestigial code, should be modernised to above
+
     gosub 1 : ' get year code
     gosub 3 : ' generate century array
     gosub 5 : ' generate day array
 
-    ? year$ "'s doomsday" ;
+    ? year$ + "'s doomsday" ;
     
     wy = val( year$ ) : ' working year
     cy = val( th_re$( th_localtime$ , "\d+" , 2 ) ) : ' current year
@@ -299,9 +304,34 @@
     if ( wy < cy ) then : timeframe$ = " was " : ' working year is before current year
     if ( wy > cy ) then : timeframe$ = " will be " : ' working year is after current year
 
-    ? timeframe$ "on a " days$( ( century_code + yy + int( yy / 4 ) ) mod 7 )
+    ? timeframe$ + "on a " + days$( ( century_code + yy + int( yy / 4 ) ) mod 7 )
 
     end
+
+
+12 ' Generate reverse reverse month table (?)
+
+    data JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER
+    data "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"
+
+    for i = 1 to 12 :
+        read s$
+        monthsn$( s$ ) = right$( "0" + str$( i ) , 2 )
+    next
+
+    for i = 1 to 12 :
+        read s$
+        monthsn$( s$ ) = right$( "0" + str$( i ) , 2 )
+    next
+
+  ' note to self: redo the rest of the big arrays like this
+
+  ' this array takes a given month, either numeric like '01' or written out like 'February' and returns the index that gives you that month, if that makes any sense
+  ' month logarithms?
+
+  ' this makes it easy to find what numeric month you're talking about, which is necessary for calculating the timeframe later on
+
+    return
 
 
 ' TODO:
@@ -310,3 +340,4 @@
 '    doomsday --cal 1984
 '    doomsday --format=ddmmyyyy 13/04/2009
 '    curselib?
+'    dates that aren't four digits break some calculations, fix that
