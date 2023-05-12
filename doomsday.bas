@@ -69,8 +69,8 @@
 
     gosub 12 : ' gen array for reverse month lookup
 
-    timeframe_t = val( year$ + monthsn$( ups$( month$ ) ) + right$( "0" + day$ , 2 ) ) : ' iso date of whenever input is, 'then'
-    timeframe_n = val( th_re$( th_localtime$ , "\d+" , 2 ) + right$( "0" + str$( th_localtime( 4 ) + 1 ) , 2 ) + th_re$( th_localtime$ , "\d+" ) ) : ' ditto but for today, whenever that is, 'now'
+    timeframe_t = val( year$ + monthsn$( ups$( month$ ) ) + th_re$( "0" + day$ , ".{2}$" ) ) : ' iso date of whenever input is, 'then'
+    timeframe_n = val( th_re$( th_localtime$ , "\d+" , 2 ) + th_re$( "0" + str$( th_localtime( 4 ) + 1 ) , ".{2}$" ) + th_re$( th_localtime$ , "\d+" ) ) : ' ditto but for today, whenever that is, 'now'
 
     if ( timeframe_t < timeframe_n ) then : timeframe$ = "was" : ' then is before now
     if ( timeframe_t = timeframe_n ) then : timeframe$ = "is" : ' then is during now
@@ -92,9 +92,9 @@
 
 1 ' Get last two digits of year and get year code
 
-    if ( len( year$ ) < 4 ) then : year$ = "0" + year$
+    if ( len( year$ ) < 4 ) then : year$ = string$( 4 - len( year$ ) , "0" ) + year$
 
-    if ( len( year$ ) > 4 ) then : ? "%years over four digits aren't supported (yet)" : end 
+    if ( len( year$ ) > 4 ) then : ? "%years over four digits aren't supported yet" : end 
 
     yy = int( th_re$( year$ , ".{2}$" ) )
 
@@ -108,31 +108,24 @@
 
 2 ' Generate month hash table and get month code
 
-    months( "JANUARY"   ) = 4
-    months( "FEBRUARY"  ) = 0
-    months( "MARCH"     ) = 0
-    months( "APRIL"     ) = 3
-    months( "MAY"       ) = 5
-    months( "JUNE"      ) = 1
-    months( "JULY"      ) = 3
-    months( "AUGUST"    ) = 6
-    months( "SEPTEMBER" ) = 2
-    months( "OCTOBER"   ) = 4
-    months( "NOVEMBER"  ) = 0
-    months( "DECEMBER"  ) = 2
+    data "JANUARY"   , "1"  , 4
+    data "FEBRUARY"  , "2"  , 0
+    data "MARCH"     , "3"  , 0
+    data "APRIL"     , "4"  , 3
+    data "MAY"       , "5"  , 5
+    data "JUNE"      , "6"  , 1
+    data "JULY"      , "7"  , 3
+    data "AUGUST"    , "8"  , 6
+    data "SEPTEMBER" , "9"  , 2
+    data "OCTOBER"   , "10" , 4
+    data "NOVEMBER"  , "11" , 0
+    data "DECEMBER"  , "12" , 2
 
-    months( "1"  ) = 4
-    months( "2"  ) = 0
-    months( "3"  ) = 0
-    months( "4"  ) = 3
-    months( "5"  ) = 5
-    months( "6"  ) = 1
-    months( "7"  ) = 3
-    months( "8"  ) = 6
-    months( "9"  ) = 2
-    months( "10" ) = 4
-    months( "11" ) = 0
-    months( "12" ) = 2
+    for i = 1 to 12 :
+        read n$ , s$ , d
+        months( n$ ) = d
+        months( s$ ) = d
+    next
 
     month_code = months( th_sed$( ups$( month$ ) , "^0+" ) )
 
@@ -186,13 +179,13 @@
 
 5 ' Day table
 
-    days$( 0 ) = "Sunday"
-    days$( 1 ) = "Monday"
-    days$( 2 ) = "Tuesday"
-    days$( 3 ) = "Wednesday"
-    days$( 4 ) = "Thursday"
-    days$( 5 ) = "Friday"
-    days$( 6 ) = "Saturday"
+    data "Sunday"    , "Monday"   , "Tuesday"
+    data "Wednesday" , "Thursday" , "Friday"
+    data "Saturday"
+
+    for i = 0 to 6 :
+        read days$( i )
+    next
 
   ' should be self-explanatory, index just points to that day of the week
 
@@ -201,31 +194,15 @@
 
 6 ' Reverse month table
 
-    revmonth$( "1"  ) = "January"
-    revmonth$( "2"  ) = "February"
-    revmonth$( "3"  ) = "March"
-    revmonth$( "4"  ) = "April"
-    revmonth$( "5"  ) = "May"
-    revmonth$( "6"  ) = "June"
-    revmonth$( "7"  ) = "July"
-    revmonth$( "8"  ) = "August"
-    revmonth$( "9"  ) = "September"
-    revmonth$( "10" ) = "October"
-    revmonth$( "11" ) = "November"
-    revmonth$( "12" ) = "December"
+    data "January"   , "February" , "March"    , "April"
+    data "May"       , "June"     , "July"     , "August"
+    data "September" , "October"  , "November" , "December"
 
-    revmonth$( "January"   ) = "January"
-    revmonth$( "February"  ) = "February"
-    revmonth$( "March"     ) = "March"
-    revmonth$( "April"     ) = "April"
-    revmonth$( "May"       ) = "May"
-    revmonth$( "June"      ) = "June"
-    revmonth$( "July"      ) = "July"
-    revmonth$( "August"    ) = "August"
-    revmonth$( "September" ) = "September"
-    revmonth$( "October"   ) = "October"
-    revmonth$( "November"  ) = "November"
-    revmonth$( "December"  ) = "December"
+    for i = 1 to 12
+        read m$
+        revmonth$( str$( i ) ) = m$
+        revmonth$( m$ ) = m$
+    next
 
   ' this makes it possible to get the month name from whatever format the month was given it, be it the month's actual name or the number it's associated with
   ' this is useful later on
@@ -253,6 +230,7 @@
                                                      goto  0
 
   ' parse year, month, and day from th_localtime() output
+  ' kinda hardcoded, yes, but timestamps will only have years from 1970 to 9999
 
     ? "%exec error" : ' shouldn't hit this line
   ' if I was a competent programmer I wouldn't need that in here, but I am not, so no such luck
@@ -286,7 +264,6 @@
   ' get year, month, and day from the argument with the date in it by use of th_re$
   ' probably a more elegant way to do this, but that's a problem for somebody who wants elegant code
 
-
 11 ' Just doomsday
 
 '   this is a lotta vestigial code, should be modernised to above
@@ -295,33 +272,38 @@
     gosub 3 : ' generate century array
     gosub 5 : ' generate day array
 
-    ? year$ + "'s doomsday" ;
+    ? year$ + "'s doomsday " ;
     
     wy = val( year$ ) : ' working year
     cy = val( th_re$( th_localtime$ , "\d+" , 2 ) ) : ' current year
 
-    if ( wy = cy ) then : timeframe$ = " is " : ' working year and current year are the same
-    if ( wy < cy ) then : timeframe$ = " was " : ' working year is before current year
-    if ( wy > cy ) then : timeframe$ = " will be " : ' working year is after current year
+    if ( wy = cy ) then : timeframe$ = "is" : ' working year and current year are the same
+    if ( wy < cy ) then : timeframe$ = "was" : ' working year is before current year
+    if ( wy > cy ) then : timeframe$ = "will be" : ' working year is after current year
 
-    ? timeframe$ + "on a " + days$( ( century_code + yy + int( yy / 4 ) ) mod 7 )
+    ? timeframe$ + " on a " + days$( ( century_code + yy + int( yy / 4 ) ) mod 7 )
 
     end
 
 
 12 ' Generate reverse reverse month table (?)
 
-    data JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER
-    data "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"
+    data "JANUARY"   , "FEBRUARY" , "MARCH"    , "APRIL"
+    data "MAY"       , "JUNE"     , "JULY"     , "AUGUST"
+    data "SEPTEMBER" , "OCTOBER"  , "NOVEMBER" , "DECEMBER"
+
+    data "01" , "02" , "03" , "04"
+    data "05" , "06" , "07" , "08"
+    data "09" , "10" , "11" , "12"
 
     for i = 1 to 12 :
         read s$
-        monthsn$( s$ ) = right$( "0" + str$( i ) , 2 )
+        monthsn$( s$ ) = th_re$( "0" + str$( i ) , ".{2}$" )
     next
 
     for i = 1 to 12 :
         read s$
-        monthsn$( s$ ) = right$( "0" + str$( i ) , 2 )
+        monthsn$( s$ ) = th_re$( "0" + str$( i ) , ".{2}$" )
     next
 
   ' note to self: redo the rest of the big arrays like this
