@@ -306,8 +306,6 @@
         monthsn$( s$ ) = th_re$( "0" + str$( i ) , ".{2}$" )
     next
 
-  ' note to self: redo the rest of the big arrays like this
-
   ' this array takes a given month, either numeric like '01' or written out like 'February' and returns the index that gives you that month, if that makes any sense
   ' month logarithms?
 
