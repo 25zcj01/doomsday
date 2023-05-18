@@ -22,7 +22,7 @@
     ? ups$( argv$( 0 ) ) + " - by ZCJ"
     ?
 
-    for i = 1 to argc%
+    for i = 1 to argc% :
         argv$( i ) = th_sed$( argv$( i ) , "^(-?-|\/)" )
         if th_re( ups$( argv$( i ) ) , "^T(IMESTAMP)?$" )       then : timestamp$ = th_localtime$( str$( argv$( i + 1 ) ) ) : date_from_timestamp = 1
         if th_re( ups$( argv$( i ) ) , "^((H(ELP)?)|\?)$" )     then : help_me = 1
