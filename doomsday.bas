@@ -198,7 +198,7 @@
     data "May"       , "June"     , "July"     , "August"
     data "September" , "October"  , "November" , "December"
 
-    for i = 1 to 12
+    for i = 1 to 12 :
         read m$
         revmonth$( str$( i ) ) = m$
         revmonth$( m$ ) = m$
