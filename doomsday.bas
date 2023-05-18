@@ -24,10 +24,10 @@
 
     for i = 1 to argc%
         argv$( i ) = th_sed$( argv$( i ) , "^(-?-|\/)" )
-        if th_re( ups$( argv$( i ) ) , "^T(IMESTAMP)?$" ) then : timestamp$ = th_localtime$( str$( argv$( i + 1 ) ) ) : date_from_timestamp = 1
-        if th_re( ups$( argv$( i ) ) , "^((H(ELP)?)|\?)$" ) then : help_me = 1
-        if th_re( ups$( argv$( i ) ) , "^F(OR)?$" ) then : just_get_doomsday = 1 : year$ = argv$( i + 1 )
-        if th_re( ups$( argv$( i ) ) , "^A(NCHOR)?$" ) then : just_get_anchor = 1 : year$ = argv$( i + 1 )
+        if th_re( ups$( argv$( i ) ) , "^T(IMESTAMP)?$" )       then : timestamp$ = th_localtime$( str$( argv$( i + 1 ) ) ) : date_from_timestamp = 1
+        if th_re( ups$( argv$( i ) ) , "^((H(ELP)?)|\?)$" )     then : help_me = 1
+        if th_re( ups$( argv$( i ) ) , "^F(OR)?$" )             then : just_get_doomsday = 1 : year$ = argv$( i + 1 )
+        if th_re( ups$( argv$( i ) ) , "^A(NCHOR)?$" )          then : just_get_anchor = 1 : year$ = argv$( i + 1 )
         if th_re( ups$( argv$( i ) ) , "^(\d+[/\-\.]){2}\d+$" ) then : date_from_arg = 1 : parse_me$ = argv$( i )
     next
 
@@ -72,8 +72,8 @@
     timeframe_t = val( year$ + monthsn$( ups$( month$ ) ) + th_re$( "0" + day$ , ".{2}$" ) ) : ' iso date of whenever input is, 'then'
     timeframe_n = val( th_re$( th_localtime$ , "\d+" , 2 ) + th_re$( "0" + str$( th_localtime( 4 ) + 1 ) , ".{2}$" ) + th_re$( th_localtime$ , "\d+" ) ) : ' ditto but for today, whenever that is, 'now'
 
-    if ( timeframe_t < timeframe_n ) then : timeframe$ = "was" : ' then is before now
-    if ( timeframe_t = timeframe_n ) then : timeframe$ = "is" : ' then is during now
+    if ( timeframe_t < timeframe_n ) then : timeframe$ = "was"     : ' then is before now
+    if ( timeframe_t = timeframe_n ) then : timeframe$ = "is"      : ' then is during now
     if ( timeframe_t > timeframe_n ) then : timeframe$ = "will be" : ' then is after now
 
     ? day$ + " " + revmonth$( th_sed$( month$ , "^0+" ) ) + " " + year$ + " " + timeframe$ + " on a " ; 
@@ -232,7 +232,7 @@
   ' parse year, month, and day from th_localtime() output
   ' kinda hardcoded, yes, but timestamps will only have years from 1970 to 9999
 
-    ? "%exec error" : ' shouldn't hit this line
+    ? "%exec error" : stop : ' shouldn't hit this line
   ' if I was a competent programmer I wouldn't need that in here, but I am not, so no such luck
 
 
@@ -261,6 +261,8 @@
                                                gosub 6
                                                goto  0
 
+    ? "%exec error" : stop : ' shouldn't hit this line, etc
+
   ' get year, month, and day from the argument with the date in it by use of th_re$
   ' probably a more elegant way to do this, but that's a problem for somebody who wants elegant code
 
@@ -269,16 +271,22 @@
 '   this is a lotta vestigial code, should be modernised to above
 
     gosub 1 : ' get year code
+    gosub 2
     gosub 3 : ' generate century array
+    gosub 4
     gosub 5 : ' generate day array
+    gosub 6
+
+  ' i dunno why, but not jumping to all of these subs breaks the days$() array
+  ' i'll fix that eventually, but 'til then i'll just leave it like this
 
     ? year$ + "'s doomsday " ;
     
     wy = val( year$ ) : ' working year
     cy = val( th_re$( th_localtime$ , "\d+" , 2 ) ) : ' current year
 
-    if ( wy = cy ) then : timeframe$ = "is" : ' working year and current year are the same
-    if ( wy < cy ) then : timeframe$ = "was" : ' working year is before current year
+    if ( wy = cy ) then : timeframe$ = "is"      : ' working year and current year are the same
+    if ( wy < cy ) then : timeframe$ = "was"     : ' working year is before current year
     if ( wy > cy ) then : timeframe$ = "will be" : ' working year is after current year
 
     ? timeframe$ + " on a " + days$( ( century_code + yy + int( yy / 4 ) ) mod 7 )
@@ -286,7 +294,7 @@
     end
 
 
-12 ' Generate reverse reverse month table (?)
+12 ' Generate reverse reverse month table(?)
 
     data "JANUARY"   , "FEBRUARY" , "MARCH"    , "APRIL"
     data "MAY"       , "JUNE"     , "JULY"     , "AUGUST"
@@ -296,20 +304,17 @@
     data "05" , "06" , "07" , "08"
     data "09" , "10" , "11" , "12"
 
-    for i = 1 to 12 :
+    for i = 0 to 23 :
         read s$
-        monthsn$( s$ ) = th_re$( "0" + str$( i ) , ".{2}$" )
-    next
-
-    for i = 1 to 12 :
-        read s$
-        monthsn$( s$ ) = th_re$( "0" + str$( i ) , ".{2}$" )
+        monthsn$( s$ ) = th_re$( "0" + str$( ( i mod 12 ) + 1 ) , ".{2}$" )
     next
 
   ' this array takes a given month, either numeric like '01' or written out like 'February' and returns the index that gives you that month, if that makes any sense
   ' month logarithms?
 
   ' this makes it easy to find what numeric month you're talking about, which is necessary for calculating the timeframe later on
+
+  ' the mod stuff just does 1-12 two times, if that's not clear
 
     return
 
