@@ -15,7 +15,6 @@
 '   You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
 
 
-    def fnLeap( n ) = ( ( not ( n mod 4 ) ) and ( not ( n mod 100 = 0 ) ) ) or ( not ( n mod 400 ) ) : ' if n is a leap year then return 1, else 0
     def fnChomp$( s$ ) = th_sed$( s$ , "^\s+|\s+$" ) : ' trim leading and trailing spaces
     crlf$ = chr$( 13 ) + chr$( 10 ) : ' guh
 
@@ -140,6 +139,9 @@
 
 3 ' Generate century array and get century code
     
+'   the century code isn't 100% accurate because it takes the top two numbers every time
+'   fix that, zcj
+
     centuries( 0 ) = 2
     centuries( 1 ) = 0
     centuries( 2 ) = 5
@@ -162,14 +164,17 @@
 
 4 ' Leap years (argh)
 
+    n = val( year$ )
+    is_leap = ( ( not ( n mod 4 ) ) and ( not ( n mod 100 = 0 ) ) ) or ( not ( n mod 400 ) )
+
     if ( ups$( month$ ) = "JANUARY" ) or ( ups$( month$ ) = "FEBRUARY" ) or ( th_re( month$ , "^(0+)?(1|2)$" ) ) then : jan_or_feb = 1
 
-    leap_code = ( fnLeap( val( year$ ) ) * jan_or_feb )
+    leap_code = ( is_leap * jan_or_feb )
 
   ' if the year in question is a leap year, then the doomsdays in january and february are pushed forwards one day
   ' this means that you need to subtract one from the final product if it's january or february in a leap year
 
-  ' fnLeap( year ) and jan_or_feb multiply to zero if either is zero (duh)
+  ' is_leap and jan_or_feb multiply to zero if either is zero (duh)
   ' so zero plus their value will be either 0 or 1
 
   ' took me too long to think up a good way to do this heh
@@ -285,8 +290,8 @@
     wy = val( year$ ) : ' working year
     cy = val( th_re$( th_localtime$ , "\d+" , 2 ) ) : ' current year
 
-    if ( wy = cy ) then : timeframe$ = "is"      : ' working year and current year are the same
     if ( wy < cy ) then : timeframe$ = "was"     : ' working year is before current year
+    if ( wy = cy ) then : timeframe$ = "is"      : ' working year and current year are the same
     if ( wy > cy ) then : timeframe$ = "will be" : ' working year is after current year
 
     ? timeframe$ + " on a " + days$( ( century_code + yy + int( yy / 4 ) ) mod 7 )
@@ -294,7 +299,7 @@
     end
 
 
-12 ' Generate reverse reverse month table(?)
+12 ' Generate reverse reverse month table
 
     data "JANUARY"   , "FEBRUARY" , "MARCH"    , "APRIL"
     data "MAY"       , "JUNE"     , "JULY"     , "AUGUST"
