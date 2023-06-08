@@ -58,5 +58,4 @@ $ doomsday for 1919
 $ doomsday --timestamp 1676170892.09022
 
 12 February 2023 was on a Sunday
-
 ```
