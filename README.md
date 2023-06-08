@@ -21,7 +21,7 @@ would look rather dull.  There's a skip of one day each year and a skip of two
 every leap year.  Once you figure out a year's doomsday, you can add and
 subtract to get to the wanted date.  Neat shit.   
 
-### 'Install':
+### Install:
 
 `pub /get zcj/doomsday.bas`
 
