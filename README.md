@@ -15,10 +15,13 @@ You should have received a copy of the GNU General Public License along with thi
 ### Wuzzat? 
 
 The doomsday algorithm was worked out by John Conway.  It makes use of the fact
-that each year has specific dates that all fall on the same day of the week.  
+that each year has specific dates that all fall on the same day of the week.
+
 This day of the week changes based on the year, obviously, or the calendar
 would look rather dull.  There's a skip of one day each year and a skip of two
-every leap year.  Once you figure out a year's doomsday, you can add and
+every leap year.  
+
+Once you figure out a year's doomsday, you can add and
 subtract to get to the wanted date.  Neat shit.   
 
 ### Install:
