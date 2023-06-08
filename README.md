@@ -43,18 +43,18 @@ doomsday anchor <year>
 $ doomsday 2018-08-15
 
 15 August 2018 was on a Wednesday
-
-
+```
+```
 $ doomsday 3000-04-12
 
 12 April 3000 will be on a Saturday
-
-
+```
+```
 $ doomsday for 1919
 
 1919's doomsday was on a Friday
-
-
+```
+```
 $ doomsday --timestamp 1676170892.09022
 
 12 February 2023 was on a Sunday
