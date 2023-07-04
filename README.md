@@ -28,7 +28,7 @@ subtract to get to the wanted date.  Neat shit.
 
 `pub /get zcj/doomsday.bas`
 
-Alternatively, you can ftp it over or copy it into `ped`.  
+Alternatively, you can `ftp` it over or copy it into `ped`.  
 
 ### Usage:
 ```
