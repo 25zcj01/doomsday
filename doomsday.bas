@@ -9,9 +9,7 @@
 
 
 '   This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
 '   This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
 '   You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
 
 
@@ -22,12 +20,14 @@
     ?
 
     for i = 1 to argc% :
+
         argv$( i ) = th_sed$( argv$( i ) , "^(-?-|\/)" )
         if th_re( ups$( argv$( i ) ) , "^T(IMESTAMP)?$" )       then : timestamp$ = th_localtime$( str$( argv$( i + 1 ) ) ) : date_from_timestamp = 1
         if th_re( ups$( argv$( i ) ) , "^((H(ELP)?)|\?)$" )     then : help_me = 1
         if th_re( ups$( argv$( i ) ) , "^F(OR)?$" )             then : just_get_doomsday = 1 : year$ = argv$( i + 1 )
         if th_re( ups$( argv$( i ) ) , "^A(NCHOR)?$" )          then : just_get_anchor = 1 : year$ = argv$( i + 1 )
         if th_re( ups$( argv$( i ) ) , "^(\d+[/\-\.]){2}\d+$" ) then : date_from_arg = 1 : parse_me$ = argv$( i )
+
     next
 
     if ( date_from_timestamp ) then : goto 8
@@ -93,7 +93,7 @@
 
     if ( len( year$ ) < 4 ) then : year$ = string$( 4 - len( year$ ) , "0" ) + year$
 
-    if ( len( year$ ) > 4 ) then : ? "%years over four digits aren't supported yet" : end 
+'   if ( len( year$ ) > 4 ) then : ? "%years over four digits aren't supported yet" : end 
 
     yy = int( th_re$( year$ , ".{2}$" ) )
 
@@ -121,9 +121,11 @@
     data "DECEMBER"  , "12" , 2
 
     for i = 1 to 12 :
+
         read n$ , s$ , d
         months( n$ ) = d
         months( s$ ) = d
+
     next
 
     month_code = months( th_sed$( ups$( month$ ) , "^0+" ) )
@@ -147,7 +149,9 @@
     centuries( 2 ) = 5
     centuries( 3 ) = 3
 
-    century_code = centuries( int( th_re$( year$ , "^.{2}" ) ) mod 4 )
+'   century_code = centuries( int( th_re$( year$ , "^.{2}" ) ) mod 4 )
+    ce$ = th_sed$( year$ , "\d{2}$" )
+    century_code = centuries( int( ce$ ) mod 4 )
 
     if ( just_get_anchor ) then : gosub 5
     if ( just_get_anchor ) then : ? year$ + "'s anchor date is " ;
@@ -189,7 +193,9 @@
     data "Saturday"
 
     for i = 0 to 6 :
+    
         read days$( i )
+
     next
 
   ' should be self-explanatory, index just points to that day of the week
@@ -204,9 +210,11 @@
     data "September" , "October"  , "November" , "December"
 
     for i = 1 to 12 :
+
         read m$
         revmonth$( str$( i ) ) = m$
         revmonth$( m$ ) = m$
+
     next
 
   ' this makes it possible to get the month name from whatever format the month was given it, be it the month's actual name or the number it's associated with
@@ -282,8 +290,8 @@
     gosub 5 : ' generate day array
     gosub 6
 
-  ' i dunno why, but not jumping to all of these subs breaks the days$() array
-  ' i'll fix that eventually, but 'til then i'll just leave it like this
+'   i dunno why, but not jumping to all of these subs breaks the days$() array
+'   i'll fix that eventually, but 'til then i'll just leave it like this
 
     ? year$ + "'s doomsday " ;
     
@@ -310,8 +318,10 @@
     data "09" , "10" , "11" , "12"
 
     for i = 0 to 23 :
+
         read s$
         monthsn$( s$ ) = th_re$( "0" + str$( ( i mod 12 ) + 1 ) , ".{2}$" )
+
     next
 
   ' this array takes a given month, either numeric like '01' or written out like 'February' and returns the index that gives you that month, if that makes any sense
@@ -329,5 +339,3 @@
 '    add an arg check so invalid inputs don't break output
 '    doomsday --cal 1984
 '    doomsday --format=ddmmyyyy 13/04/2009
-'    curselib?
-'    dates that aren't four digits break some calculations, fix that
