@@ -43,6 +43,8 @@ doomsday for <year>
 doomsday anchor <year>
 ```
 
+You may use a single hyphen, a double hyphen, a slash, or nothing at all to lead arguments.  
+
 ### Examples:
 ```
 $ doomsday 2018-08-15
