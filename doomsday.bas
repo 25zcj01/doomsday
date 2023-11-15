@@ -1,11 +1,11 @@
 
-' DOOMSDAY.BAS -- Calculate the day of the week for any date
+'   DOOMSDAY.BAS -- Calculate the day of the week for any date
 
-' By ZCJ
+'   By ZCJ
 
-' Uses the doomsday algorithm, devised by John Conway
+'   Uses the doomsday algorithm, devised by John Conway
 
-' Copyright 2022, 2023 ZCJ
+'   Copyright 2022, 2023 ZCJ, self-update code by UNDERWOOD
 
 
 '   This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -13,20 +13,37 @@
 '   You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>. 
 
 
-    def fnChomp$( s$ ) = th_sed$( s$ , "^\s+|\s+$" ) : ' trim leading and trailing spaces
-    crlf$ = chr$( 13 ) + chr$( 10 ) : ' guh
+'   Notes:
+'           Script is a tad bloaty, and there are parts that could certainly be pared down a bit
+'           There are definitely parts in here that aren't optimised for speed, and could be improved upon a bit
 
-    ? ups$( argv$( 0 ) ) + " - by ZCJ"
+    author$  = "zcj"
+    package$ = "doomsday.bas"
+    version$ = "1.4.12"
+    tstamp   = 1699932042
+
+    randomize th_time
+
+    gosub 13 : ' self-update
+
+    def fnChomp$( s$ ) = th_sed$( s$ , "^\s+|\s+$" ) : ' trim leading and trailing spaces
+    crlf$ = chr$(13) + chr$(10) : ' guh
+
+    ? ups$( package$ ) + " v" + version$ + " - by " + ups$( author$ )
     ?
 
     for i = 1 to argc% :
 
-        argv$( i ) = th_sed$( argv$( i ) , "^(-?-|\/)" )
-        if th_re( ups$( argv$( i ) ) , "^T(IMESTAMP)?$" )       then : timestamp$ = th_localtime$( str$( argv$( i + 1 ) ) ) : date_from_timestamp = 1
-        if th_re( ups$( argv$( i ) ) , "^((H(ELP)?)|\?)$" )     then : help_me = 1
-        if th_re( ups$( argv$( i ) ) , "^F(OR)?$" )             then : just_get_doomsday = 1 : year$ = argv$( i + 1 )
-        if th_re( ups$( argv$( i ) ) , "^A(NCHOR)?$" )          then : just_get_anchor = 1 : year$ = argv$( i + 1 )
-        if th_re( ups$( argv$( i ) ) , "^(\d+[/\-\.]){2}\d+$" ) then : date_from_arg = 1 : parse_me$ = argv$( i )
+        argv$(i) = th_sed$( argv$(i) , "^(-?-|\/)" )
+        
+        if th_re( ups$( argv$(i) ) , "^T(IMESTAMP)?$" )       then : timestamp$ = th_localtime$( str$( argv$( i + 1 ) ) ) : date_from_timestamp = 1
+        if th_re( ups$( argv$(i) ) , "^((H(ELP)?)|\?)$" )     then : help_me = 1
+        if th_re( ups$( argv$(i) ) , "^F(OR)?$" )             then : just_get_doomsday = 1 : year$ = argv$( i + 1 )
+        if th_re( ups$( argv$(i) ) , "^A(NCHOR)?$" )          then : just_get_anchor = 1 : year$ = argv$( i + 1 )
+        if th_re( ups$( argv$(i) ) , "^(\d+[/\-\.]){2}\d+$" ) then : date_from_arg = 1 : parse_me$ = argv$(i)
+        if th_re( ups$( argv$(i) ) , "^F(ORMAT)?$" )          then : format$ = th_sed$( th_sed$( th_sed$( ups$( argv$( i + 1 ) ) , "Y+" , "1" ) , "M+" , "2" ) , "D+" , "3" )
+        if th_re( ups$( argv$(i) ) , "^TODAY$" )              then : timestamp$ = th_localtime$( th_time ) : date_from_timestamp = 1 : today = 1
+        if th_re( ups$( argv$(i) ) , "^RANDOM$" )             then : timestamp$ = th_localtime$( rnd( th_time ) ) : date_from_timestamp = 1
 
     next
 
@@ -40,9 +57,12 @@
 
     boring_old_regular_input = 1
 
-    input "Year? "  ; year$  : in$ = year$  : gosub 7
-    input "Month? " ; month$ : in$ = month$ : gosub 7
-    input "Day? "   ; day$   : in$ = day$   : gosub 7
+    ? "Year? "  ; : year$  = fnChomp$( input$ )
+    ? "Month? " ; : month$ = fnChomp$( input$ )
+    ? "Day? "   ; : day$   = fnChomp$( input$ )
+
+  ' i did inputs like this because doing 'normal' input statements would take up more space
+  ' plus this just looks nicer
 
     gosub 1
     gosub 2
@@ -69,11 +89,13 @@
     gosub 12 : ' gen array for reverse month lookup
 
     timeframe_t = val( year$ + monthsn$( ups$( month$ ) ) + th_re$( "0" + day$ , ".{2}$" ) ) : ' iso date of whenever input is, 'then'
-    timeframe_n = val( th_re$( th_localtime$ , "\d+" , 2 ) + th_re$( "0" + str$( th_localtime( 4 ) + 1 ) , ".{2}$" ) + th_re$( th_localtime$ , "\d+" ) ) : ' ditto but for today, whenever that is, 'now'
+    timeframe_n = val( th_re$( th_localtime$ , "\d+" , 2 ) + th_re$( "0" + str$( th_localtime(4) + 1 ) , ".{2}$" ) + th_re$( "0" + th_re$( th_localtime$ , "\d{1,2}" ) , ".{2}$" ) ) : ' ditto but for today, whenever that is, 'now'
 
     if ( timeframe_t < timeframe_n ) then : timeframe$ = "was"     : ' then is before now
     if ( timeframe_t = timeframe_n ) then : timeframe$ = "is"      : ' then is during now
     if ( timeframe_t > timeframe_n ) then : timeframe$ = "will be" : ' then is after now
+
+    day$ = th_re$( "0" + day$ , ".{2}$" )
 
     ? day$ + " " + revmonth$( th_sed$( month$ , "^0+" ) ) + " " + year$ + " " + timeframe$ + " on a " ; 
 
@@ -82,7 +104,7 @@
 
   ' can't remember why I decided to print it like this, but I did
 
-    ? days$( dd )
+    ? days$(dd)
 
   ' day of the week that selected date falls on
 
@@ -92,8 +114,6 @@
 1 ' Get last two digits of year and get year code
 
     if ( len( year$ ) < 4 ) then : year$ = string$( 4 - len( year$ ) , "0" ) + year$
-
-'   if ( len( year$ ) > 4 ) then : ? "%years over four digits aren't supported yet" : end 
 
     yy = int( th_re$( year$ , ".{2}$" ) )
 
@@ -130,30 +150,25 @@
 
     month_code = months( th_sed$( ups$( month$ ) , "^0+" ) )
 
-  ' so:
-  ' I'm not entirely sure how this bit works
-  ' but I know that it does
-
-  ' so I'll assume you, dear reader, are able to work a search engine of your choosing and find out what the hell is happening
+  ' the numbers for each month represent the difference from a multiple of seven
+  ' e.g. march has doomsdays that are always multiples of seven (0, 7, 14, ...), so no change needs to be applied
+  ' december, on the other hand, has doomsdays that fall two days behind multiples of seven (5, 12, 19, ...), so it has to be offset by two
+  ' neat shit
 
     return
 
 
 3 ' Generate century array and get century code
     
-'   the century code isn't 100% accurate because it takes the top two numbers every time
-'   fix that, zcj
+    centuries(0) = 2
+    centuries(1) = 0
+    centuries(2) = 5
+    centuries(3) = 3
 
-    centuries( 0 ) = 2
-    centuries( 1 ) = 0
-    centuries( 2 ) = 5
-    centuries( 3 ) = 3
-
-'   century_code = centuries( int( th_re$( year$ , "^.{2}" ) ) mod 4 )
     ce$ = th_sed$( year$ , "\d{2}$" )
     century_code = centuries( int( ce$ ) mod 4 )
 
-    if ( just_get_anchor ) then : gosub 5
+    if ( just_get_anchor ) then : gosub 1 : gosub 2 : gosub 4 : gosub 5 : gosub 6 : ' fuckin' data statements
     if ( just_get_anchor ) then : ? year$ + "'s anchor date is " ;
     if ( just_get_anchor ) then : ? days$( century_code )
     if ( just_get_anchor ) then : end
@@ -161,7 +176,7 @@
   ' these are the 'anchor days', or the doomsdays of each century
   ' it cycles around like this every four years, so `year mod 4` finds it quick 'n' easy
 
-  ' the bottom bit just sets up the days table, prints anchor, and ends
+  ' the bottom bit just prints anchor, and ends
 
     return
 
@@ -171,7 +186,8 @@
     n = val( year$ )
     is_leap = ( ( not ( n mod 4 ) ) and ( not ( n mod 100 = 0 ) ) ) or ( not ( n mod 400 ) )
 
-    if ( ups$( month$ ) = "JANUARY" ) or ( ups$( month$ ) = "FEBRUARY" ) or ( th_re( month$ , "^(0+)?(1|2)$" ) ) then : jan_or_feb = 1
+'   if ( ups$( month$ ) = "JANUARY" ) or ( ups$( month$ ) = "FEBRUARY" ) or ( th_re( month$ , "^0*[12]$" ) ) then : jan_or_feb = 1
+    jan_or_feb = ( ( ups$( month$ ) = "JANUARY" ) or ( ups$( month$ ) = "FEBRUARY" ) or ( th_re( month$ , "^0*[12]$" ) ) )
 
     leap_code = ( is_leap * jan_or_feb )
 
@@ -194,7 +210,7 @@
 
     for i = 0 to 6 :
     
-        read days$( i )
+        read days$(i)
 
     next
 
@@ -212,7 +228,7 @@
     for i = 1 to 12 :
 
         read m$
-        revmonth$( str$( i ) ) = m$
+        revmonth$( str$(i) ) = m$
         revmonth$( m$ ) = m$
 
     next
@@ -234,13 +250,18 @@
 
 8 ' Parse Unix timestamp
   ' Probably broken lol
-    year$  = th_re$( timestamp$ , "\d{4}" )        : gosub 1
-    month$ = th_re$( timestamp$ , "[A-Z]\w+" , 2 ) : gosub 2
-    day$   = th_re$( timestamp$ , "\d{2}" )        : gosub 3
-                                                     gosub 4
-                                                     gosub 5
-                                                     gosub 6
-                                                     goto  0
+    year$  = th_re$( timestamp$ , "\d{4}" )
+    month$ = th_re$( timestamp$ , "[A-Z]\w+" , 2 )
+    day$   = th_re$( timestamp$ , "\d{1,2}" )
+
+    gosub 1
+    gosub 2
+    gosub 3
+    gosub 4
+    gosub 5
+    gosub 6
+
+    goto 0
 
   ' parse year, month, and day from th_localtime() output
   ' kinda hardcoded, yes, but timestamps will only have years from 1970 to 9999
@@ -249,65 +270,75 @@
   ' if I was a competent programmer I wouldn't need that in here, but I am not, so no such luck
 
 
-9 ' Help me Obi-wan Kenobi, you're my...
+9 ' Help
 
-    only_hope$ = only_hope$ + "CLI Doomsday Calculator" + crlf$
-    only_hope$ = only_hope$ +                             crlf$
-    only_hope$ = only_hope$ + "Usage:"                  + crlf$
-    only_hope$ = only_hope$ + "doomsday [ISO date]"     + crlf$
-    only_hope$ = only_hope$ + "doomsday t <timestamp>"  + crlf$
-    only_hope$ = only_hope$ + "doomsday for <year>"     + crlf$
-    only_hope$ = only_hope$ + "doomsday anchor <year>"  + crlf$
+    help$ = help$ + "%usage:" + crlf$ + crlf$
+    help$ = help$ + spc$(4) + "doomsday [iso date]" + crlf$
+    help$ = help$ + spc$(4) + "doomsday --timestamp <unix timestamp>" + crlf$
+    help$ = help$ + spc$(4) + "doomsday --for <year>" + crlf$
+    help$ = help$ + spc$(4) + "doomsday --anchor <year>" + crlf$
+    help$ = help$ + spc$(4) + "doomsday --format <date format> <date>" + crlf$
+    help$ = help$ + spc$(4) + "doomsday --today" + crlf$
+    help$ = help$ + spc$(4) + "doomsday --random" + crlf$
 
-    ? only_hope$
+  ' this way there shouldn't be any delay when printing lines
+  ' not that it matters in the slightest, just gives me peace of mind
+
+    ? help$
 
     end
 
 
-10 ' Date from arg
+10 'Date from arg
 
-    year$  = th_re$( parse_me$ , "\d+" , 1 ) : gosub 1
-    month$ = th_re$( parse_me$ , "\d+" , 2 ) : gosub 2
-    day$   = th_re$( parse_me$ , "\d+" , 3 ) : gosub 3
-                                               gosub 4
-                                               gosub 5
-                                               gosub 6
-                                               goto  0
+    if ( format$ = "" ) then : format$ = "123"
+
+    year$  = th_re$( parse_me$ , "\d+" , pos( format$ , "1" ) )
+    month$ = th_re$( parse_me$ , "\d+" , pos( format$ , "2" ) )
+    day$   = th_re$( parse_me$ , "\d+" , pos( format$ , "3" ) )
+
+  ' format$ is just the order of years, months, and days: 1 is years, 2 is months, 3 is days
+  ' then it just takes the values in that order
+
+    gosub 1
+    gosub 2
+    gosub 3
+    gosub 4
+    gosub 5
+    gosub 6
+
+    goto 0
 
     ? "%exec error" : stop : ' shouldn't hit this line, etc
 
   ' get year, month, and day from the argument with the date in it by use of th_re$
   ' probably a more elegant way to do this, but that's a problem for somebody who wants elegant code
 
-11 ' Just doomsday
 
-'   this is a lotta vestigial code, should be modernised to above
+11 'Just doomsday
 
-    gosub 1 : ' get year code
+    gosub 1
     gosub 2
-    gosub 3 : ' generate century array
+    gosub 3
     gosub 4
-    gosub 5 : ' generate day array
+    gosub 5
     gosub 6
 
-'   i dunno why, but not jumping to all of these subs breaks the days$() array
-'   i'll fix that eventually, but 'til then i'll just leave it like this
+'   not jumping to all of those breaks array stuff because data statements are jank
 
-    ? year$ + "'s doomsday " ;
-    
-    wy = val( year$ ) : ' working year
-    cy = val( th_re$( th_localtime$ , "\d+" , 2 ) ) : ' current year
+    timestamp_t = val( year$ ) : ' then
+    timestamp_n = val( th_re$( th_localtime$ , "\d+" , 2 ) ) : ' now
 
-    if ( wy < cy ) then : timeframe$ = "was"     : ' working year is before current year
-    if ( wy = cy ) then : timeframe$ = "is"      : ' working year and current year are the same
-    if ( wy > cy ) then : timeframe$ = "will be" : ' working year is after current year
+    if ( timestamp_t < timestamp_n ) then : timeframe$ = "was"     : ' then is before now
+    if ( timestamp_t = timestamp_n ) then : timeframe$ = "is"      : ' then is during now
+    if ( timestamp_t > timestamp_n ) then : timeframe$ = "will be" : ' then is after now
 
-    ? timeframe$ + " on a " + days$( ( century_code + yy + int( yy / 4 ) ) mod 7 )
+    ? year$ + "'s doomsday " + timeframe$ + " on a " + days$( ( century_code + yy + int( yy / 4 ) ) mod 7 )
 
     end
 
 
-12 ' Generate reverse reverse month table
+12 'Generate reverse reverse month table
 
     data "JANUARY"   , "FEBRUARY" , "MARCH"    , "APRIL"
     data "MAY"       , "JUNE"     , "JULY"     , "AUGUST"
@@ -325,8 +356,6 @@
     next
 
   ' this array takes a given month, either numeric like '01' or written out like 'February' and returns the index that gives you that month, if that makes any sense
-  ' month logarithms?
-
   ' this makes it easy to find what numeric month you're talking about, which is necessary for calculating the timeframe later on
 
   ' the mod stuff just does 1-12 two times, if that's not clear
@@ -334,8 +363,68 @@
     return
 
 
-' TODO:
+13 'self-update, courtesy of underwood
 
-'    add an arg check so invalid inputs don't break output
-'    doomsday --cal 1984
-'    doomsday --format=ddmmyyyy 13/04/2009
+    rpkg$ = th_sed$( package$ , "\." , "\." )
+    th_exec "\pub /raw | grep '([^\s]+[\s]+){2}" + rpkg$ + "'" ; rstamp$ : rstamp = val(th_re$(rstamp$, "([^\s]+\s+){2}(\d+)", "%2"))
+    if rstamp < tstamp then return
+    ? "Checking for updates..."
+    udcmd$ = "\pub /less " + author$ + "/" + package$ + "|head -n 10"
+    th_exec udcmd$ ; fh$
+    latest$ = th_re$(th_re$(fh$,"version\$\s*=\s*\S+"),"\d+\.\d+\.\d+")
+    if latest$ > version$ then ? "%an update is available (" + latest$ + ", you have " + version$ + ")" : gosub 14
+    if version$ >= latest$ then ? "You have the latest version: " + version$ + ". (Remote: " + latest$ + ")"
+    if version$ = latest$ then th_exec "\pub /raw|grep '([^\s]+[\s]+){2}" + rpkg$ + "'" ; stamp$ : stamp$ = th_re$(stamp$, "[^\s]+\s")
+
+    return
+
+
+14 'offer to update
+
+    ? "view diff? [y/N] " ;
+    yn$ = inkey$ : ? yn$
+    if yn$ = "y" then gosub 16
+    ? "update to " + latest$ + "? [y/N] " ;
+    yn$ = inkey$ : ? yn$
+    if yn$ = "y" then goto 15
+
+    return
+
+
+15 'update
+
+    ? "updating..."
+    udcmd$ = "\pub /get /y " + author$ + "/" + package$
+    ? udcmd$
+    th_exec udcmd$ ; update_status$
+    if not th_re(update_status$,"File saved") then ? "%an error occurred while updating" : end
+    th_exec "\run " + package$ + " " + ARG$
+
+    end
+
+
+16 'show diff
+
+    tmp$ = th_re$( th_md5hex$( package$ ) , "^.{2}" ) + ".latest.tmp"
+    th_exec "\pub /get /y /to=" + tmp$ + " " + author$ + "/" + package$ ; out$
+    th_exec "\diff /colour " + package$ + " " + tmp$
+    scratch tmp$ ; out$
+
+    return
+
+
+  ' recommended reading:
+
+  ' https://en.wikipedia.org/wiki/Doomsday_rule
+  ' https://telehack.com/r/wHhdu
+  ' https://telehack.com/r/KnACf
+  ' https://telehack.com/r/P5m4o
+
+
+'   TODO:
+
+'   allow for options to use = where applicable, e.g. `doomsday --format=mmddyyyy 10-31-1963`, currently that just fucks it up completely
+'   make --format options actually representative of numbers of things, i.e. mmmddddy would be invalid
+'   add an arg check so invalid inputs don't break output
+'   doomsday --cal 1984
+'   optimise for speed a bit more
