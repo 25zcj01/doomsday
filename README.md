@@ -37,10 +37,13 @@ $ doomsday --help
 CLI Doomsday Calculator
 
 Usage:
-doomsday [ISO date]
-doomsday t <timestamp>
-doomsday for <year>
-doomsday anchor <year>
+    doomsday [iso date]
+    doomsday --timestamp <unix timestamp>
+    doomsday --for <year>
+    doomsday --anchor <year>
+    doomsday --format <date format> <date>
+    doomsday --today
+    doomsday --random
 ```
 
 You may use a single hyphen, a double hyphen, a slash, or nothing at all to lead arguments.  
